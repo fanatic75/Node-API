@@ -1,0 +1,39 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "A sample node js api ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "model":"sequelize-auto -o './models' -d sample -h localhost -u root -p 3306 -x senorita1231 -e mysql",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fanatic75/Node-API.git"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "api"
+  ],
+  "author": "Prateek Banga",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fanatic75/Node-API/issues"
+  },
+  "homepage": "https://github.com/fanatic75/Node-API#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "global": "^4.4.0",
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
