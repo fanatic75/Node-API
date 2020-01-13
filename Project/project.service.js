@@ -1,12 +1,25 @@
 const sequelize = require("../helpers/db");
-const { Op } = require("sequelize");
-const mysql = require("mysql");
 const Clients = sequelize.import("../models/clients");
 const Projects = sequelize.import("../models/projects");
 const Costs = sequelize.import("../models/costs");
 const CostTypes = sequelize.import("../models/cost_types");
+
+
+
+//clients has many projects
 Clients.hasMany(Projects, { as: "Breakdown", foreignKey: "Client_ID" });
+
+
+//project has 1 one client
 Projects.belongsTo(Clients, { foreignKey: "Client_ID" });
+
+
+
+
+//Project is linked to Cost Types through a relationship Costs 
+// Here Project has many Cost Types and it uses costs as the relationship table
+
+
 Projects.belongsToMany(CostTypes, {
   through: {
     model: Costs,
@@ -17,6 +30,10 @@ Projects.belongsToMany(CostTypes, {
   foreignKey: "Project_ID"
 });
 
+
+
+//Cost Types also has many Projects since it's a m:n relationship. It is also linked to Projects via Costs.
+
 CostTypes.belongsToMany(Projects, {
   through: {
     model: Costs
@@ -24,17 +41,29 @@ CostTypes.belongsToMany(Projects, {
 
   foreignKey: "Cost_Type_ID"
 });
+
+
+//Cost types has many costs, required for getting the amount later for every property.
 CostTypes.hasMany(Costs, {
   foreignKey: "Cost_Type_ID"
 });
 
+//Projects also has many costs, again required for finding out the amount later for every property but it's not really coming up. 
+//This is a working step.
 Projects.hasMany(Costs, {
   foreignKey: "Project_ID"
 });
 
+
+//Self relation of Cost Type with itself.
+
 CostTypes.hasMany(CostTypes, {
   foreignKey: "Parent_Cost_Type_ID"
 });
+
+
+
+//route function of Getting all the details. Returns a JSON Array Object.
 const getCostOfAllClients = async query => {
   if (!Object.keys(query).length) {
     const clients = await Clients.findAll({
@@ -50,7 +79,10 @@ const getCostOfAllClients = async query => {
             ],
             exclude: ["Client_ID", "ID", "Title"]
           },
-          include: [
+          include: [{
+            model:Costs,
+            group:['ID']
+          },
             {
               model: CostTypes,
               through: {
@@ -77,6 +109,9 @@ const getCostOfAllClients = async query => {
         }
       ]
     });
+    
+
+    //getting the amount with raw sql query and adding it to the clients object for each client.
     const result = await sequelize.query(
       ` select sum(amount) as amount  from clients c, projects p , costs cs where c.id = p.client_id  and p.id = cs.project_id and cs.cost_type_id<4 group by c.id; `
     );
@@ -85,9 +120,10 @@ const getCostOfAllClients = async query => {
     parsedClients.forEach((client, i) => {
       client.amount = result[0][i]["amount"];
     });
-    console.log(parsedClients);
     return parsedClients;
   } else {
+
+    //query request 
       if(query.clients&&query.projects&&query.cost_types){
         const clients = await Clients.findAll({
             where: {
