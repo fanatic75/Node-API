@@ -26,5 +26,3 @@ There are some problems explained in the following points:
 2. Amount of the inner most cost type is also not coming up again because of same attribute name , again the ambiguous column name error found in sequelize library. Still working on these errors.
 
 Error is : (attribute name is ambiguous)
-Took me long time to sort this because of the complex JSON architecture.
-Mysql doesn't provide a good way for complex JSON architecture with node.js so I had to use ORM.
